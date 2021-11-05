@@ -1,5 +1,6 @@
 from app.view import GeneratorUi
 import app.consts as consts
+from app.generator import Generator
 
 
 class GeneratorController:
@@ -25,4 +26,8 @@ class GeneratorController:
             consts.Inputs.IMAGE_HEIGHT: self._view.imageHeightInput.text(),
             consts.Inputs.AUGMENTATION: self._view.augmentationCheckbox.isChecked()
         }
-        print(inputData)
+        self.processInputData(inputData)
+
+    def processInputData(self, inputData):
+        generator = Generator(inputData)
+        self._view.changeStatus('Processing inputs...')

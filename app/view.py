@@ -1,6 +1,8 @@
 from PyQt5.QtCore import Qt
 import PyQt5.QtWidgets as QtWidgets
 
+import app.consts as consts
+
 
 class GeneratorUi(QtWidgets.QMainWindow):
     def __init__(self):
@@ -28,7 +30,7 @@ class GeneratorUi(QtWidgets.QMainWindow):
         searchEngineLayout = QtWidgets.QHBoxLayout()
         searchEngineLayout.addWidget(QtWidgets.QLabel('Search engine:'))
         self.searchEngineBox = QtWidgets.QComboBox()
-        self.searchEngineBox.addItems(['Google', 'Yahoo', 'Bing'])
+        self.searchEngineBox.addItems([searchEngine.value for searchEngine in consts.SearchEngines])
         searchEngineLayout.addWidget(self.searchEngineBox)
         searchEngineGroup.setLayout(searchEngineLayout)
 
@@ -81,8 +83,8 @@ class GeneratorUi(QtWidgets.QMainWindow):
         groupSearchBox.setLayout(groupSearchLayout)
         searchLayout.addWidget(groupSearchBox)
 
-        self.singleSearchCheck.clicked.connect(lambda: self._changedEnabledOptions('single'))
-        self.groupSearchCheck.clicked.connect(lambda: self._changedEnabledOptions('group'))
+        self.singleSearchCheck.clicked.connect(lambda: self._changedEnabledOptions(consts.SearchOptions.SINGLE_SEARCH))
+        self.groupSearchCheck.clicked.connect(lambda: self._changedEnabledOptions(consts.SearchOptions.GROUP_SEARCH))
 
         searchBox.setLayout(searchLayout)
 
@@ -94,16 +96,16 @@ class GeneratorUi(QtWidgets.QMainWindow):
 
         additionalOptionsLayout.addWidget(QtWidgets.QLabel('Desired images format:'), 0, 0)
         self.imageFormatBox = QtWidgets.QComboBox()
-        self.imageFormatBox.addItems(['png', 'jpg'])
+        self.imageFormatBox.addItems([imageFormat.value for imageFormat in consts.ImageFormats])
         additionalOptionsLayout.addWidget(self.imageFormatBox, 0, 1, 1, 3)
 
         additionalOptionsLayout.addWidget(QtWidgets.QLabel('Desired image resolution:'), 1, 0)
         self.imageWidthInput = QtWidgets.QLineEdit()
-        self.imageWidthInput.setText('100')
+        self.imageWidthInput.setText(str(consts.DEFAULT_IMAGE_WIDTH))
         additionalOptionsLayout.addWidget(self.imageWidthInput, 1, 1)
         additionalOptionsLayout.addWidget(QtWidgets.QLabel('x'), 1, 2)
         self.imageHeightInput = QtWidgets.QLineEdit()
-        self.imageHeightInput.setText('100')
+        self.imageHeightInput.setText(str(consts.DEFAULT_IMAGE_HEIGHT))
         additionalOptionsLayout.addWidget(self.imageHeightInput, 1, 3)
 
         self.augmentationCheckbox = QtWidgets.QCheckBox()
@@ -126,14 +128,14 @@ class GeneratorUi(QtWidgets.QMainWindow):
         self.pathLine.setText(path)
 
     def _changedEnabledOptions(self, toEnable):
-        if toEnable == 'single':
+        if toEnable == consts.SearchOptions.SINGLE_SEARCH:
             self.singleSearchInputLine.setReadOnly(False)
             self.groupNameInputLine.setText('')
             self.groupNameInputLine.setReadOnly(True)
             self.groupSearchEntriesInputLine.setText('')
             self.groupSearchEntriesInputLine.setReadOnly(True)
             self.groupSearchCheck.setChecked(False)
-        elif toEnable == 'group':
+        elif toEnable == consts.SearchOptions.GROUP_SEARCH:
             self.groupNameInputLine.setReadOnly(False)
             self.groupSearchEntriesInputLine.setReadOnly(False)
             self.singleSearchInputLine.setText('')
