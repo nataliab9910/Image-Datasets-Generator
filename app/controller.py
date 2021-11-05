@@ -31,3 +31,16 @@ class GeneratorController:
     def processInputData(self, inputData):
         generator = Generator(inputData)
         self._view.changeStatus('Processing inputs...')
+
+        try:
+            generator.validateInputs()
+        except (KeyError, NotADirectoryError) as err:
+            self._view.changeStatus(str(err))
+            self._view.enableGenerateButton()
+            return
+        except Exception:
+            self._view.changeStatus('Unexpected error happened.')
+            raise
+
+        self._view.changeStatus('Generating dataset...')
+        generator.generateDataset()
