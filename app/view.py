@@ -108,9 +108,13 @@ class GeneratorUi(QtWidgets.QMainWindow):
         self.imageHeightInput.setText(str(consts.DEFAULT_IMAGE_HEIGHT))
         additionalOptionsLayout.addWidget(self.imageHeightInput, 1, 3)
 
+        self.keepRatioCheckbox = QtWidgets.QCheckBox()
+        self.keepRatioCheckbox.setText('Keep original image ratio')
+        additionalOptionsLayout.addWidget(self.keepRatioCheckbox, 2, 0)
+
         self.augmentationCheckbox = QtWidgets.QCheckBox()
         self.augmentationCheckbox.setText('Augmentation')
-        additionalOptionsLayout.addWidget(self.augmentationCheckbox, 2, 0)
+        additionalOptionsLayout.addWidget(self.augmentationCheckbox, 3, 0)
 
         additionalOptionsGroup.setLayout(additionalOptionsLayout)
 

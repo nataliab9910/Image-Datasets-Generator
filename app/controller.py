@@ -24,6 +24,7 @@ class GeneratorController:
             consts.Inputs.IMAGE_FORMAT: self._view.imageFormatBox.currentText(),
             consts.Inputs.IMAGE_WIDTH: self._view.imageWidthInput.text(),
             consts.Inputs.IMAGE_HEIGHT: self._view.imageHeightInput.text(),
+            consts.Inputs.KEEP_RATIO: self._view.keepRatioCheckbox.isChecked(),
             consts.Inputs.AUGMENTATION: self._view.augmentationCheckbox.isChecked()
         }
         self.processInputData(inputData)

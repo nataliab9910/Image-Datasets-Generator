@@ -1,7 +1,5 @@
 import io
 import os
-import urllib.request
-from time import sleep
 
 import requests
 from PIL import Image
@@ -55,10 +53,16 @@ class Generator:
         try:
             self.inputData[consts.Inputs.IMAGE_HEIGHT] = int(self.inputData[consts.Inputs.IMAGE_HEIGHT])
             self.inputData[consts.Inputs.IMAGE_WIDTH] = int(self.inputData[consts.Inputs.IMAGE_WIDTH])
-            if self.inputData[consts.Inputs.IMAGE_HEIGHT] <= 0 or self.inputData[consts.Inputs.IMAGE_WIDTH] <= 0:
-                raise ValueError
         except ValueError:
             raise KeyError('Provided image height or width is not valid.')
+
+        if not 0 < self.inputData[consts.Inputs.IMAGE_HEIGHT] <= consts.MAX_IMAGE_SIZE \
+                or not 0 < self.inputData[consts.Inputs.IMAGE_WIDTH] <= consts.MAX_IMAGE_SIZE:
+            raise ValueError(f'Provided image height and width should be higher than 0 and less than or equal '
+                             f'{consts.MAX_IMAGE_SIZE}.')
+
+        if consts.Inputs.KEEP_RATIO not in self.inputData:
+            self.inputData[consts.Inputs.KEEP_RATIO] = False
 
         if consts.Inputs.AUGMENTATION not in self.inputData:
             self.inputData[consts.Inputs.AUGMENTATION] = False
@@ -87,25 +91,31 @@ class Generator:
         if isGroupSearch:
             destinationDir = destinationDir + self.inputData[consts.Inputs.GROUP_NAME] + '/'
 
+        destinationDir = destinationDir + entry + '/'
+        os.mkdir(destinationDir)
+
+        desiredImageSize = (self.inputData[consts.Inputs.IMAGE_WIDTH], self.inputData[consts.Inputs.IMAGE_HEIGHT])
+
         savedImagesCount = 0
         for index, imageUrl in enumerate(images):
             try:
                 response = requests.get(imageUrl, timeout=10)
-                if response.status_code == 200:
+                if response.status_code == 200 and response.headers['content-type'].startswith('image/'):
                     image_bytes = io.BytesIO(response.content)
                     with Image.open(image_bytes) as img:
                         print(index)
+                        if self.inputData[consts.Inputs.KEEP_RATIO]:
+                            img.thumbnail(desiredImageSize, Image.ANTIALIAS)
+                        else:
+                            img = img.resize(desiredImageSize, Image.ANTIALIAS)
+                        img.save(f'{destinationDir}{entry}{savedImagesCount+1:03}.'
+                                 f'{self.inputData[consts.Inputs.IMAGE_FORMAT]}')
                         savedImagesCount += 1
-                        if index == 34:
-                            img.show()
             except Exception as e:
-                print(imageUrl)
-                print(e)
+                print(e)  # save to logs exception with link to image
                 continue
 
         return savedImagesCount
-
-
 
     def _augmentImage(self, image):
         pass

@@ -3,6 +3,7 @@ from enum import Enum, auto
 
 DEFAULT_IMAGE_WIDTH = 100
 DEFAULT_IMAGE_HEIGHT = 100
+MAX_IMAGE_SIZE = 500
 
 
 class Inputs(Enum):
@@ -16,6 +17,7 @@ class Inputs(Enum):
     IMAGE_FORMAT = auto()
     IMAGE_WIDTH = auto()
     IMAGE_HEIGHT = auto()
+    KEEP_RATIO = auto()
     AUGMENTATION = auto()
 
 
