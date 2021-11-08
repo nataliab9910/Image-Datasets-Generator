@@ -2,3 +2,6 @@ __pycache__
 .vscode
 .idea
 /venv
+
+keys.py
+/mocks

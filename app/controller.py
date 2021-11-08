@@ -34,7 +34,10 @@ class GeneratorController:
 
         try:
             generator.validateInputs()
-        except (KeyError, NotADirectoryError) as err:
+            self._view.changeStatus('Generating dataset...')
+            savedImagesCount = generator.generateDataset()
+            self._view.changeStatus(f'Collected {savedImagesCount} images!')
+        except (KeyError, NotADirectoryError, ValueError) as err:
             self._view.changeStatus(str(err))
             self._view.enableGenerateButton()
             return
@@ -42,5 +45,4 @@ class GeneratorController:
             self._view.changeStatus('Unexpected error happened.')
             raise
 
-        self._view.changeStatus('Generating dataset...')
-        generator.generateDataset()
+
