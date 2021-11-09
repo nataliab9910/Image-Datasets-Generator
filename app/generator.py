@@ -1,6 +1,6 @@
 import io
+import numpy as np
 import os
-
 import requests
 from PIL import Image
 
@@ -73,17 +73,45 @@ class Generator:
             api = ApiProvider.getApi(self.inputData[consts.Inputs.SEARCH_ENGINE])
             if self.inputData[consts.Inputs.IS_SINGLE_SEARCH]:
                 entry = self.inputData[consts.Inputs.SINGLE_SEARCH_ENTRY]
-                images = api.getImages(entry)
-                print(images)
+                imageUrls = api.getImages(entry)
+                print(imageUrls)
+                images = self._processImages(imageUrls)
                 savedImagesNum += self._saveImages(images, entry)
             elif self.inputData[consts.Inputs.IS_GROUP_SEARCH]:
                 for entry in self.inputData[consts.Inputs.GROUP_SEARCH_ENTRIES]:
-                    images = api.getImages(entry)
+                    imageUrls = api.getImages(entry)
+                    images = self._processImages(imageUrls)
                     savedImagesNum += self._saveImages(images, entry, True)
         except Exception:
             raise
 
         return savedImagesNum
+
+    def _processImages(self, imageUrls):
+        desiredImageSize = (self.inputData[consts.Inputs.IMAGE_WIDTH], self.inputData[consts.Inputs.IMAGE_HEIGHT])
+
+        images = []
+        for index, imageUrl in enumerate(imageUrls):
+            try:
+                response = requests.get(imageUrl, timeout=10)
+                if response.status_code == 200 and response.headers['content-type'].startswith('image/'):
+                    image_bytes = io.BytesIO(response.content)
+                    with Image.open(image_bytes) as image:
+                        print(index)
+                        if self.inputData[consts.Inputs.KEEP_RATIO]:
+                            image.thumbnail(desiredImageSize, Image.ANTIALIAS)
+                        else:
+                            image = image.resize(desiredImageSize, Image.ANTIALIAS)
+
+                        images.append(image)
+            except Exception as e:
+                print(e)  # save to logs exception with link to image
+                continue
+
+        return self._augmentImages(images)
+
+    def _augmentImages(self, images):
+        return images
 
     def _saveImages(self, images, entry, isGroupSearch=False):
         destinationDir = self.inputData[consts.Inputs.LOCAL_PATH] + '/'
@@ -94,28 +122,10 @@ class Generator:
         destinationDir = destinationDir + entry + '/'
         os.mkdir(destinationDir)
 
-        desiredImageSize = (self.inputData[consts.Inputs.IMAGE_WIDTH], self.inputData[consts.Inputs.IMAGE_HEIGHT])
-
         savedImagesCount = 0
-        for index, imageUrl in enumerate(images):
-            try:
-                response = requests.get(imageUrl, timeout=10)
-                if response.status_code == 200 and response.headers['content-type'].startswith('image/'):
-                    image_bytes = io.BytesIO(response.content)
-                    with Image.open(image_bytes) as img:
-                        print(index)
-                        if self.inputData[consts.Inputs.KEEP_RATIO]:
-                            img.thumbnail(desiredImageSize, Image.ANTIALIAS)
-                        else:
-                            img = img.resize(desiredImageSize, Image.ANTIALIAS)
-                        img.save(f'{destinationDir}{entry}{savedImagesCount+1:03}.'
-                                 f'{self.inputData[consts.Inputs.IMAGE_FORMAT]}')
-                        savedImagesCount += 1
-            except Exception as e:
-                print(e)  # save to logs exception with link to image
-                continue
+        for img in images:
+            img.save(f'{destinationDir}{entry}{savedImagesCount+1:03}.'
+                     f'{self.inputData[consts.Inputs.IMAGE_FORMAT]}')
+            savedImagesCount += 1
 
         return savedImagesCount
-
-    def _augmentImage(self, image):
-        pass
