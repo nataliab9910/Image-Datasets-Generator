@@ -4,7 +4,11 @@ from enum import Enum, auto
 DEFAULT_IMAGE_WIDTH = 100
 DEFAULT_IMAGE_HEIGHT = 100
 MAX_IMAGE_SIZE = 500
-
+DEFAULT_SHARPNESS_MIN, DEFAULT_SHARPNESS_MAX = 1.0, 1.0
+DEFAULT_CONTRAST_MIN, DEFAULT_CONTRAST_MAX = 1.0, 1.0
+DEFAULT_BRIGHTNESS_MIN, DEFAULT_BRIGHTNESS_MAX = 1.0, 1.0
+DEFAULT_ROTATION_LEVEL = 0
+DEFAULT_AUGMENTATION_LEVEL = 3
 
 class Inputs(Enum):
     SEARCH_ENGINE = auto()
@@ -18,7 +22,18 @@ class Inputs(Enum):
     IMAGE_WIDTH = auto()
     IMAGE_HEIGHT = auto()
     KEEP_RATIO = auto()
-    AUGMENTATION = auto()
+    IS_AUGMENTATION = auto()
+    AUGMENTATION_LEVEL = auto()
+    IS_HORIZONTAL_FLIP = auto()
+    IS_VERTICAL_FLIP = auto()
+    ROTATION_LEVEL = auto()
+    SHARPNESS_MIN = auto()
+    SHARPNESS_MAX = auto()
+    CONTRAST_MIN = auto()
+    CONTRAST_MAX = auto()
+    BRIGHTNESS_MIN = auto()
+    BRIGHTNESS_MAX = auto()
+    SHUFFLE_IMAGES = auto()
 
 
 class AppStatuses(Enum):

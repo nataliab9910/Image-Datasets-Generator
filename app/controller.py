@@ -9,9 +9,9 @@ class GeneratorController:
         self._connectSignals()
 
     def _connectSignals(self):
-        self._view.generateButton.clicked.connect(lambda: self.collectInputData())
+        self._view.generateButton.clicked.connect(lambda: self.generate())
 
-    def collectInputData(self):
+    def generate(self):
         self._view.changeStatus('Collecting inputs...')
         inputData = {
             consts.Inputs.SEARCH_ENGINE: self._view.searchEngineBox.currentText(),
@@ -25,9 +25,25 @@ class GeneratorController:
             consts.Inputs.IMAGE_WIDTH: self._view.imageWidthInput.text(),
             consts.Inputs.IMAGE_HEIGHT: self._view.imageHeightInput.text(),
             consts.Inputs.KEEP_RATIO: self._view.keepRatioCheckbox.isChecked(),
-            consts.Inputs.AUGMENTATION: self._view.augmentationCheckbox.isChecked()
+            consts.Inputs.IS_AUGMENTATION: self._view.augmentationCheckbox.isChecked(),
+            consts.Inputs.AUGMENTATION_LEVEL: self._view.augmentationLevelInput.text(),
+            consts.Inputs.IS_HORIZONTAL_FLIP: self._view.horizontalFlipCheckbox.isChecked(),
+            consts.Inputs.IS_VERTICAL_FLIP: self._view.verticalFLipCheckbox.isChecked(),
+            consts.Inputs.ROTATION_LEVEL: self._view.rotationLevelInput.text(),
+            consts.Inputs.SHARPNESS_MIN: self._view.sharpnessMinInput.text(),
+            consts.Inputs.SHARPNESS_MAX: self._view.sharpnessMaxInput.text(),
+            consts.Inputs.CONTRAST_MIN: self._view.contrastMinInput.text(),
+            consts.Inputs.CONTRAST_MAX: self._view.contrastMaxInput.text(),
+            consts.Inputs.BRIGHTNESS_MIN: self._view.brightnessMinInput.text(),
+            consts.Inputs.BRIGHTNESS_MAX: self._view.brightnessMaxInput.text(),
+            consts.Inputs.SHUFFLE_IMAGES: self._view.shuffleImagesCheckbox.isChecked()
         }
-        self.processInputData(inputData)
+        try:
+            self.processInputData(inputData)
+        except Exception as e:
+            print(e)
+            self._view.changeStatus('Sorry, something unexpected happened :(')
+            self._view.enableGenerateButton()
 
     def processInputData(self, inputData):
         generator = Generator(inputData)

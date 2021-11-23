@@ -20,6 +20,7 @@ class GeneratorUi(QtWidgets.QMainWindow):
         self.layout.addWidget(self._preparePathGroup())
         self.layout.addWidget(self._prepareSearchBox())
         self.layout.addWidget(self._prepareAdditionalOptions())
+        self.layout.addWidget(self._prepareAugmentationOptions())
         self.layout.addWidget(self._prepareGenerateButton(), alignment=Qt.AlignCenter)
 
         self.statusBarWidget = QtWidgets.QStatusBar()
@@ -62,6 +63,7 @@ class GeneratorUi(QtWidgets.QMainWindow):
         singleSearchLayout.addWidget(self.singleSearchCheck, 0, 0)
         singleSearchLayout.addWidget(QtWidgets.QLabel('Search entry:'), 1, 0)
         self.singleSearchInputLine = QtWidgets.QLineEdit()
+        self.singleSearchInputLine.setEnabled(False)
         singleSearchLayout.addWidget(self.singleSearchInputLine, 1, 1)
 
         singleSearchBox.setLayout(singleSearchLayout)
@@ -75,16 +77,18 @@ class GeneratorUi(QtWidgets.QMainWindow):
         groupSearchLayout.addWidget(self.groupSearchCheck, 0, 0)
         groupSearchLayout.addWidget(QtWidgets.QLabel('Group name:'), 1, 0)
         self.groupNameInputLine = QtWidgets.QLineEdit()
+        self.groupNameInputLine.setEnabled(False)
         groupSearchLayout.addWidget(self.groupNameInputLine, 1, 1)
         groupSearchLayout.addWidget(QtWidgets.QLabel('Search entries (split by comma):'), 2, 0)
         self.groupSearchEntriesInputLine = QtWidgets.QLineEdit()
+        self.groupSearchEntriesInputLine.setEnabled(False)
         groupSearchLayout.addWidget(self.groupSearchEntriesInputLine, 2, 1)
 
         groupSearchBox.setLayout(groupSearchLayout)
         searchLayout.addWidget(groupSearchBox)
 
-        self.singleSearchCheck.clicked.connect(lambda: self._changedEnabledOptions(consts.SearchOptions.SINGLE_SEARCH))
-        self.groupSearchCheck.clicked.connect(lambda: self._changedEnabledOptions(consts.SearchOptions.GROUP_SEARCH))
+        self.singleSearchCheck.clicked.connect(lambda: self._changedEnabledSearchOptions(consts.SearchOptions.SINGLE_SEARCH))
+        self.groupSearchCheck.clicked.connect(lambda: self._changedEnabledSearchOptions(consts.SearchOptions.GROUP_SEARCH))
 
         searchBox.setLayout(searchLayout)
 
@@ -110,15 +114,97 @@ class GeneratorUi(QtWidgets.QMainWindow):
 
         self.keepRatioCheckbox = QtWidgets.QCheckBox()
         self.keepRatioCheckbox.setText('Keep original image ratio')
-        additionalOptionsLayout.addWidget(self.keepRatioCheckbox, 2, 0)
-
-        self.augmentationCheckbox = QtWidgets.QCheckBox()
-        self.augmentationCheckbox.setText('Augmentation')
-        additionalOptionsLayout.addWidget(self.augmentationCheckbox, 3, 0)
+        additionalOptionsLayout.addWidget(self.keepRatioCheckbox, 2, 0, 1, 2)
 
         additionalOptionsGroup.setLayout(additionalOptionsLayout)
 
         return additionalOptionsGroup
+
+    def _prepareAugmentationOptions(self):
+        augmentationOptionsGroup = QtWidgets.QGroupBox()
+        augmentationOptionsLayout = QtWidgets.QGridLayout()
+
+        lineNumber = 1
+        self.augmentationCheckbox = QtWidgets.QCheckBox()
+        self.augmentationCheckbox.setText('Augmentation')
+        augmentationOptionsLayout.addWidget(self.augmentationCheckbox, lineNumber, 0)
+        self.augmentationCheckbox.clicked.connect(lambda: self._changedEnabledAugmetationOptions(self.augmentationCheckbox.isChecked()))
+
+        lineNumber += 1
+        augmentationOptionsLayout.addWidget(QtWidgets.QLabel('Augmentation level (2-50):'), lineNumber, 0)
+        self.augmentationLevelInput = QtWidgets.QLineEdit()
+        self.augmentationLevelInput.setText(str(consts.DEFAULT_AUGMENTATION_LEVEL))
+        self.augmentationLevelInput.setEnabled(False)
+        augmentationOptionsLayout.addWidget(self.augmentationLevelInput, lineNumber, 1)
+
+        lineNumber += 1
+        self.horizontalFlipCheckbox = QtWidgets.QCheckBox()
+        self.horizontalFlipCheckbox.setText('Horizontal flip')
+        self.horizontalFlipCheckbox.setEnabled(False)
+        augmentationOptionsLayout.addWidget(self.horizontalFlipCheckbox, lineNumber, 0)
+        self.verticalFLipCheckbox = QtWidgets.QCheckBox()
+        self.verticalFLipCheckbox.setText('Vertical flip')
+        self.verticalFLipCheckbox.setEnabled(False)
+        augmentationOptionsLayout.addWidget(self.verticalFLipCheckbox, lineNumber, 1)
+
+        lineNumber += 1
+        augmentationOptionsLayout.addWidget(QtWidgets.QLabel('Rotation level (0-1)*:'), lineNumber, 0)
+        self.rotationLevelInput = QtWidgets.QLineEdit()
+        self.rotationLevelInput.setText(str(consts.DEFAULT_ROTATION_LEVEL))
+        self.rotationLevelInput.setEnabled(False)
+        augmentationOptionsLayout.addWidget(self.rotationLevelInput, lineNumber, 1)
+
+        lineNumber += 1
+        augmentationOptionsLayout.addWidget(QtWidgets.QLabel('Sharpness range (0-2)**:'), lineNumber, 0)
+        self.sharpnessMinInput = QtWidgets.QLineEdit()
+        self.sharpnessMinInput.setText(str(consts.DEFAULT_SHARPNESS_MIN))
+        self.sharpnessMinInput.setEnabled(False)
+        augmentationOptionsLayout.addWidget(self.sharpnessMinInput, lineNumber, 1)
+        augmentationOptionsLayout.addWidget(QtWidgets.QLabel('-'), lineNumber, 2)
+        self.sharpnessMaxInput = QtWidgets.QLineEdit()
+        self.sharpnessMaxInput.setText(str(consts.DEFAULT_SHARPNESS_MAX))
+        self.sharpnessMaxInput.setEnabled(False)
+        augmentationOptionsLayout.addWidget(self.sharpnessMaxInput, lineNumber, 3)
+
+        lineNumber += 1
+        augmentationOptionsLayout.addWidget(QtWidgets.QLabel('Contrast range (0-2)**:'), lineNumber, 0)
+        self.contrastMinInput = QtWidgets.QLineEdit()
+        self.contrastMinInput.setText(str(consts.DEFAULT_CONTRAST_MIN))
+        self.contrastMinInput.setEnabled(False)
+        augmentationOptionsLayout.addWidget(self.contrastMinInput, lineNumber, 1)
+        augmentationOptionsLayout.addWidget(QtWidgets.QLabel('-'), lineNumber, 2)
+        self.contrastMaxInput = QtWidgets.QLineEdit()
+        self.contrastMaxInput.setText(str(consts.DEFAULT_CONTRAST_MAX))
+        self.contrastMaxInput.setEnabled(False)
+        augmentationOptionsLayout.addWidget(self.contrastMaxInput, lineNumber, 3)
+
+        lineNumber += 1
+        augmentationOptionsLayout.addWidget(QtWidgets.QLabel('Brightness range (0-2)**:'), lineNumber, 0)
+        self.brightnessMinInput = QtWidgets.QLineEdit()
+        self.brightnessMinInput.setText(str(consts.DEFAULT_BRIGHTNESS_MIN))
+        self.brightnessMinInput.setEnabled(False)
+        augmentationOptionsLayout.addWidget(self.brightnessMinInput, lineNumber, 1)
+        augmentationOptionsLayout.addWidget(QtWidgets.QLabel('-'), lineNumber, 2)
+        self.brightnessMaxInput = QtWidgets.QLineEdit()
+        self.brightnessMaxInput.setText(str(consts.DEFAULT_BRIGHTNESS_MAX))
+        self.brightnessMaxInput.setEnabled(False)
+        augmentationOptionsLayout.addWidget(self.brightnessMaxInput, lineNumber, 3)
+
+        lineNumber += 1
+        self.shuffleImagesCheckbox = QtWidgets.QCheckBox()
+        self.shuffleImagesCheckbox.setText('Shuffle images')
+        self.shuffleImagesCheckbox.setEnabled(False)
+        augmentationOptionsLayout.addWidget(self.shuffleImagesCheckbox, lineNumber, 0)
+
+        lineNumber += 1
+        augmentationOptionsLayout.addWidget(QtWidgets.QLabel('* 0.0 means no change, 1.0 means 180 degrees rotation'), lineNumber, 0, 1, 2)
+
+        lineNumber += 1
+        augmentationOptionsLayout.addWidget(QtWidgets.QLabel('** 1.0 means no change'), lineNumber, 0)
+
+        augmentationOptionsGroup.setLayout(augmentationOptionsLayout)
+
+        return augmentationOptionsGroup
 
     def _prepareGenerateButton(self):
         self.generateButton = QtWidgets.QPushButton('Generate')
@@ -131,20 +217,44 @@ class GeneratorUi(QtWidgets.QMainWindow):
         path = QtWidgets.QFileDialog.getExistingDirectory(self, 'Select directory')
         self.pathLine.setText(path)
 
-    def _changedEnabledOptions(self, toEnable):
+    def _changedEnabledSearchOptions(self, toEnable):
         if toEnable == consts.SearchOptions.SINGLE_SEARCH:
-            self.singleSearchInputLine.setReadOnly(False)
-            self.groupNameInputLine.setText('')
-            self.groupNameInputLine.setReadOnly(True)
-            self.groupSearchEntriesInputLine.setText('')
-            self.groupSearchEntriesInputLine.setReadOnly(True)
+            self.singleSearchInputLine.setEnabled(True)
+            self.groupNameInputLine.setEnabled(False)
+            self.groupSearchEntriesInputLine.setEnabled(False)
             self.groupSearchCheck.setChecked(False)
         elif toEnable == consts.SearchOptions.GROUP_SEARCH:
-            self.groupNameInputLine.setReadOnly(False)
-            self.groupSearchEntriesInputLine.setReadOnly(False)
-            self.singleSearchInputLine.setText('')
-            self.singleSearchInputLine.setReadOnly(True)
+            self.groupNameInputLine.setEnabled(True)
+            self.groupSearchEntriesInputLine.setEnabled(True)
+            self.singleSearchInputLine.setEnabled(False)
             self.singleSearchCheck.setChecked(False)
+
+    def _changedEnabledAugmetationOptions(self, isChecked):
+        if isChecked:
+            self.augmentationLevelInput.setEnabled(True)
+            self.horizontalFlipCheckbox.setEnabled(True)
+            self.verticalFLipCheckbox.setEnabled(True)
+            self.rotationLevelInput.setEnabled(True)
+            self.sharpnessMinInput.setEnabled(True)
+            self.sharpnessMaxInput.setEnabled(True)
+            self.contrastMinInput.setEnabled(True)
+            self.contrastMaxInput.setEnabled(True)
+            self.brightnessMinInput.setEnabled(True)
+            self.brightnessMaxInput.setEnabled(True)
+            self.shuffleImagesCheckbox.setEnabled(True)
+
+        else:
+            self.augmentationLevelInput.setEnabled(False)
+            self.horizontalFlipCheckbox.setEnabled(False)
+            self.verticalFLipCheckbox.setEnabled(False)
+            self.rotationLevelInput.setEnabled(False)
+            self.sharpnessMinInput.setEnabled(False)
+            self.sharpnessMaxInput.setEnabled(False)
+            self.contrastMinInput.setEnabled(False)
+            self.contrastMaxInput.setEnabled(False)
+            self.brightnessMinInput.setEnabled(False)
+            self.brightnessMaxInput.setEnabled(False)
+            self.shuffleImagesCheckbox.setEnabled(False)
 
     def changeStatus(self, status):
         self.statusBarWidget.showMessage(status)
