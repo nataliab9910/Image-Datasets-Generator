@@ -8,12 +8,14 @@ class GeneratorUi(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle('Image datasets generator')
-        self.setFixedWidth(500)
+        self.setFixedWidth(600)
+        self.setFixedHeight(800)
         self.layout = QtWidgets.QVBoxLayout()
         self._centralWidget = QtWidgets.QWidget(self)
         self.setCentralWidget(self._centralWidget)
         self._centralWidget.setLayout(self.layout)
         self._createInterface()
+        self.centerWindow()
 
     def _createInterface(self):
         self.layout.addWidget(self._prepareSearchEngineGroup())
@@ -261,3 +263,9 @@ class GeneratorUi(QtWidgets.QMainWindow):
 
     def enableGenerateButton(self):
         self.generateButton.setEnabled(True)
+
+    def centerWindow(self):
+        qtRectangle = self.frameGeometry()
+        centerPoint = QtWidgets.QDesktopWidget().availableGeometry().center()
+        qtRectangle.moveCenter(centerPoint)
+        self.move(qtRectangle.topLeft())
