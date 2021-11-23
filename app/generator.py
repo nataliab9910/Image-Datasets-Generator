@@ -41,35 +41,35 @@ class Validator:
 class Generator:
     def __init__(self, inputData):
         self.inputData = inputData
+        self.validator = Validator(self.inputData)
 
     def validateInputs(self):
         # self.inputData[consts.Inputs.SEARCH_ENGINE] = 'ojoj'
-        validator = Validator(self.inputData)
 
         # validate search engine
-        validator.keyExists(consts.Inputs.SEARCH_ENGINE)
-        validator.isValueInEnum(consts.Inputs.SEARCH_ENGINE, consts.SearchEngines)
+        self.validator.keyExists(consts.Inputs.SEARCH_ENGINE)
+        self.validator.isValueInEnum(consts.Inputs.SEARCH_ENGINE, consts.SearchEngines)
 
         # validate local path
-        validator.keyExists(consts.Inputs.LOCAL_PATH)
-        validator.isDirectory(self.inputData[consts.Inputs.LOCAL_PATH])
+        self.validator.keyExists(consts.Inputs.LOCAL_PATH)
+        self.validator.isDirectory(self.inputData[consts.Inputs.LOCAL_PATH])
 
         # validate search option
         # validate single search option
-        if validator.conditionKeyExistsAndIsTrue(consts.Inputs.IS_SINGLE_SEARCH):
-            validator.keyExists(consts.Inputs.SINGLE_SEARCH_ENTRY)
+        if self.validator.conditionKeyExistsAndIsTrue(consts.Inputs.IS_SINGLE_SEARCH):
+            self.validator.keyExists(consts.Inputs.SINGLE_SEARCH_ENTRY)
 
             destinationDirectory = self.inputData[consts.Inputs.LOCAL_PATH] \
                                    + '/' \
                                    + self.inputData[consts.Inputs.SINGLE_SEARCH_ENTRY]
             try:
-                validator.isEmptyDirectory(destinationDirectory)
+                self.validator.isEmptyDirectory(destinationDirectory)
             except NotADirectoryError:
                 pass
         # validate group search option
-        elif validator.conditionKeyExistsAndIsTrue(consts.Inputs.IS_GROUP_SEARCH):
-            validator.keyExists(consts.Inputs.GROUP_NAME)
-            validator.keyExists(consts.Inputs.GROUP_SEARCH_ENTRIES)
+        elif self.validator.conditionKeyExistsAndIsTrue(consts.Inputs.IS_GROUP_SEARCH):
+            self.validator.keyExists(consts.Inputs.GROUP_NAME)
+            self.validator.keyExists(consts.Inputs.GROUP_SEARCH_ENTRIES)
             self.inputData[consts.Inputs.GROUP_SEARCH_ENTRIES] = \
                 [entry for entry in self.inputData[consts.Inputs.GROUP_SEARCH_ENTRIES].split(',') if entry]
         # no option defined
@@ -77,12 +77,12 @@ class Generator:
             raise KeyError('Type of search not defined.')
 
         # validate image format
-        validator.keyExists(consts.Inputs.IMAGE_FORMAT)
-        validator.isValueInEnum(consts.Inputs.IMAGE_FORMAT, consts.ImageFormats)
+        self.validator.keyExists(consts.Inputs.IMAGE_FORMAT)
+        self.validator.isValueInEnum(consts.Inputs.IMAGE_FORMAT, consts.ImageFormats)
 
         # validate image size params
-        validator.keyExists(consts.Inputs.IMAGE_HEIGHT)
-        validator.keyExists(consts.Inputs.IMAGE_WIDTH)
+        self.validator.keyExists(consts.Inputs.IMAGE_HEIGHT)
+        self.validator.keyExists(consts.Inputs.IMAGE_WIDTH)
 
         try:
             self.inputData[consts.Inputs.IMAGE_HEIGHT] = int(self.inputData[consts.Inputs.IMAGE_HEIGHT])
@@ -97,117 +97,18 @@ class Generator:
 
         # validate keep ratio
         try:
-            validator.keyExists(consts.Inputs.KEEP_RATIO)
+            self.validator.keyExists(consts.Inputs.KEEP_RATIO)
         except KeyError:
             self.inputData[consts.Inputs.KEEP_RATIO] = False
 
-        if consts.Inputs.IS_AUGMENTATION not in self.inputData:
-            self.inputData[consts.Inputs.IS_AUGMENTATION] = False
+        # validate augmentation
+        if self.validator.conditionKeyExistsAndIsTrue(consts.Inputs.IS_AUGMENTATION):
+            self._validateAugmentationOptions()
         else:
-            if consts.Inputs.AUGMENTATION_LEVEL not in self.inputData:
-                self.inputData[consts.Inputs.AUGMENTATION_LEVEL] = consts.DEFAULT_AUGMENTATION_LEVEL
-            else:
-                try:
-                    self.inputData[consts.Inputs.AUGMENTATION_LEVEL] = int(self.inputData[consts.Inputs.AUGMENTATION_LEVEL])
-                except ValueError:
-                    raise KeyError('Provided augmentation level is not a valid number.')
+            self.inputData[consts.Inputs.IS_AUGMENTATION] = False
 
-                if self.inputData[consts.Inputs.AUGMENTATION_LEVEL] < 2 or self.inputData[consts.Inputs.AUGMENTATION_LEVEL] > 50:
-                    raise ValueError('Provided augmentation level should be any integer from range [2, 50].')
-
-            if consts.Inputs.IS_HORIZONTAL_FLIP not in self.inputData:
-                self.inputData[consts.Inputs.IS_HORIZONTAL_FLIP] = False
-
-            if consts.Inputs.IS_VERTICAL_FLIP not in self.inputData:
-                self.inputData[consts.Inputs.IS_VERTICAL_FLIP] = False
-
-            if consts.Inputs.ROTATION_LEVEL not in self.inputData:
-                self.inputData[consts.Inputs.ROTATION_LEVEL] = consts.DEFAULT_ROTATION_LEVEL
-            else:
-                try:
-                    self.inputData[consts.Inputs.ROTATION_LEVEL] = float(self.inputData[consts.Inputs.ROTATION_LEVEL])
-                except ValueError:
-                    raise KeyError('Provided rotation level is not a valid number.')
-
-                if self.inputData[consts.Inputs.ROTATION_LEVEL] < 0 or self.inputData[consts.Inputs.ROTATION_LEVEL] > 1:
-                    raise ValueError('Provided rotation level should be higher than or equal to 0 and lower than or equal to 1.')
-
-            if consts.Inputs.SHARPNESS_MIN not in self.inputData:
-                self.inputData[consts.Inputs.SHARPNESS_MIN] = consts.DEFAULT_SHARPNESS_MIN
-            else:
-                try:
-                    self.inputData[consts.Inputs.SHARPNESS_MIN] = float(self.inputData[consts.Inputs.SHARPNESS_MIN])
-                except ValueError:
-                    raise KeyError('Provided minimum sharpness level is not a valid number.')
-
-                if self.inputData[consts.Inputs.SHARPNESS_MIN] < 0:
-                    raise ValueError('Minimum sharpness level should be higher than or equal to 0.')
-
-            if consts.Inputs.SHARPNESS_MAX not in self.inputData:
-                self.inputData[consts.Inputs.SHARPNESS_MAX] = consts.DEFAULT_SHARPNESS_MAX
-            else:
-                try:
-                    self.inputData[consts.Inputs.SHARPNESS_MAX] = float(self.inputData[consts.Inputs.SHARPNESS_MAX])
-                except ValueError:
-                    raise KeyError('Provided maximum sharpness level is not a valid number.')
-
-                if self.inputData[consts.Inputs.SHARPNESS_MAX] > 2:
-                    raise ValueError('Maximum sharpness level should be lower than or equal to 2')
-
-            if self.inputData[consts.Inputs.SHARPNESS_MIN] > self.inputData[consts.Inputs.SHARPNESS_MAX]:
-                raise ValueError('Minimum sharpness level should be lower than or equal to maximum sharpness level.')
-
-            if consts.Inputs.BRIGHTNESS_MIN not in self.inputData:
-                self.inputData[consts.Inputs.BRIGHTNESS_MIN] = consts.DEFAULT_SHARPNESS_MIN
-            else:
-                try:
-                    self.inputData[consts.Inputs.BRIGHTNESS_MIN] = float(self.inputData[consts.Inputs.BRIGHTNESS_MIN])
-                except ValueError:
-                    raise KeyError('Provided minimum sharpness level is not a valid number.')
-
-                if self.inputData[consts.Inputs.BRIGHTNESS_MIN] < 0:
-                    raise ValueError('Minimum sharpness level should be higher than or equal to 0.')
-
-            if consts.Inputs.BRIGHTNESS_MAX not in self.inputData:
-                self.inputData[consts.Inputs.BRIGHTNESS_MAX] = consts.DEFAULT_BRIGHTNESS_MAX
-            else:
-                try:
-                    self.inputData[consts.Inputs.BRIGHTNESS_MAX] = float(self.inputData[consts.Inputs.BRIGHTNESS_MAX])
-                except ValueError:
-                    raise KeyError('Provided maximum sharpness level is not a valid number.')
-
-                if self.inputData[consts.Inputs.BRIGHTNESS_MAX] > 2:
-                    raise ValueError('Maximum sharpness level should be lower than or equal to 2')
-
-            if self.inputData[consts.Inputs.BRIGHTNESS_MIN] > self.inputData[consts.Inputs.BRIGHTNESS_MAX]:
-                raise ValueError('Minimum sharpness level should be lower than or equal to maximum sharpness level.')
-
-            if consts.Inputs.CONTRAST_MIN not in self.inputData:
-                self.inputData[consts.Inputs.CONTRAST_MIN] = consts.DEFAULT_CONTRAST_MIN
-            else:
-                try:
-                    self.inputData[consts.Inputs.CONTRAST_MIN] = float(self.inputData[consts.Inputs.CONTRAST_MIN])
-                except ValueError:
-                    raise KeyError('Provided minimum sharpness level is not a valid number.')
-
-                if self.inputData[consts.Inputs.CONTRAST_MIN] < 0:
-                    raise ValueError('Minimum sharpness level should be higher than or equal to 0.')
-
-            if consts.Inputs.CONTRAST_MAX not in self.inputData:
-                self.inputData[consts.Inputs.CONTRAST_MAX] = consts.DEFAULT_CONTRAST_MAX
-            else:
-                try:
-                    self.inputData[consts.Inputs.CONTRAST_MAX] = float(self.inputData[consts.Inputs.CONTRAST_MAX])
-                except ValueError:
-                    raise KeyError('Provided maximum sharpness level is not a valid number.')
-
-                if self.inputData[consts.Inputs.CONTRAST_MAX] > 2:
-                    raise ValueError('Maximum sharpness level should be lower than or equal to 2')
-
-            if self.inputData[consts.Inputs.CONTRAST_MIN] > self.inputData[consts.Inputs.CONTRAST_MAX]:
-                raise ValueError('Minimum sharpness level should be lower than or equal to maximum sharpness level.')
-
-        if consts.Inputs.SHUFFLE_IMAGES not in self.inputData:
+        # validate shuffle option
+        if not self.validator.conditionKeyExistsAndIsTrue(consts.Inputs.SHUFFLE_IMAGES):
             self.inputData[consts.Inputs.SHUFFLE_IMAGES] = False
 
     def generateDataset(self):
@@ -312,8 +213,81 @@ class Generator:
 
         savedImagesCount = 0
         for img in images:
-            img.save(f'{destinationDir}{entry}{savedImagesCount+1:03}.'
+            img.save(f'{destinationDir}{entry}{savedImagesCount + 1:03}.'
                      f'{self.inputData[consts.Inputs.IMAGE_FORMAT]}')
             savedImagesCount += 1
 
         return savedImagesCount
+
+    def _validateAugmentationOptions(self):
+        # validate level
+        try:
+            self.validator.keyExists(consts.Inputs.AUGMENTATION_LEVEL)
+            self.inputData[consts.Inputs.AUGMENTATION_LEVEL] = int(self.inputData[consts.Inputs.AUGMENTATION_LEVEL])
+            if self.inputData[consts.Inputs.AUGMENTATION_LEVEL] < consts.AUGMENTATION_LEVEL_MIN \
+                    or self.inputData[consts.Inputs.AUGMENTATION_LEVEL] > consts.AUGMENTATION_LEVEL_MAX:
+                raise ValueError
+        except KeyError:
+            self.inputData[consts.Inputs.AUGMENTATION_LEVEL] = consts.DEFAULT_AUGMENTATION_LEVEL
+        except ValueError:
+            raise ValueError(f'Provided augmentation level is not a valid integer from range ['
+                             f'{consts.AUGMENTATION_LEVEL_MIN}, {consts.AUGMENTATION_LEVEL_MAX}].')
+
+        # validate flips
+        if not self.validator.conditionKeyExistsAndIsTrue(consts.Inputs.IS_HORIZONTAL_FLIP):
+            self.inputData[consts.Inputs.IS_HORIZONTAL_FLIP] = False
+        if not self.validator.conditionKeyExistsAndIsTrue(consts.Inputs.IS_VERTICAL_FLIP):
+            self.inputData[consts.Inputs.IS_VERTICAL_FLIP] = False
+
+        # validate rotation level
+        try:
+            self.validator.keyExists(consts.Inputs.ROTATION_LEVEL)
+            self.inputData[consts.Inputs.ROTATION_LEVEL] = float(self.inputData[consts.Inputs.ROTATION_LEVEL])
+            if self.inputData[consts.Inputs.ROTATION_LEVEL] < consts.ROTATION_LEVEL_MIN \
+                    or self.inputData[consts.Inputs.ROTATION_LEVEL] > consts.ROTATION_LEVEL_MAX:
+                raise ValueError
+        except KeyError:
+            self.inputData[consts.Inputs.ROTATION_LEVEL] = consts.DEFAULT_ROTATION_LEVEL
+        except ValueError:
+            raise ValueError(f'Provided rotation level is not a valid number from range ['
+                             f'{consts.ROTATION_LEVEL_MIN}, {consts.ROTATION_LEVEL_MAX}].')
+
+        # validate sharpness level
+        self._validateImageAdjustmentOption('sharpness', consts.Inputs.SHARPNESS_MIN, consts.Inputs.SHARPNESS_MAX,
+                                            consts.DEFAULT_SHARPNESS_MIN, consts.DEFAULT_SHARPNESS_MAX,
+                                            consts.SHARPNESS_MIN, consts.SHARPNESS_MAX)
+
+        # validate brightness level
+        self._validateImageAdjustmentOption('brightness', consts.Inputs.BRIGHTNESS_MIN, consts.Inputs.BRIGHTNESS_MAX,
+                                            consts.DEFAULT_BRIGHTNESS_MIN, consts.DEFAULT_BRIGHTNESS_MAX,
+                                            consts.BRIGHTNESS_MIN, consts.BRIGHTNESS_MAX)
+
+        # validate contrast level
+        self._validateImageAdjustmentOption('contrast', consts.Inputs.CONTRAST_MIN, consts.Inputs.CONTRAST_MAX,
+                                            consts.DEFAULT_CONTRAST_MIN, consts.DEFAULT_CONTRAST_MAX,
+                                            consts.CONTRAST_MIN, consts.CONTRAST_MAX)
+
+    def _validateImageAdjustmentOption(self, optionName, minInput, maxInput, defaultMin, defaultMax, minValue,
+                                       maxValue):
+        try:
+            self.validator.keyExists(minInput)
+            self.inputData[minInput] = float(self.inputData[minInput])
+            if self.inputData[minInput] < minValue:
+                raise ValueError
+        except KeyError:
+            self.inputData[minInput] = defaultMin
+        except ValueError:
+            raise ValueError(f'Provided {optionName} level is not a valid number higher than or equal to {minValue}.')
+
+        try:
+            self.validator.keyExists(maxInput)
+            self.inputData[maxInput] = float(self.inputData[maxInput])
+            if self.inputData[maxInput] > maxValue:
+                raise ValueError
+        except KeyError:
+            self.inputData[maxInput] = defaultMax
+        except ValueError:
+            raise ValueError(f'Provided {optionName} level is not a valid number lower than or equal to {maxValue}.')
+
+        if self.inputData[minInput] > self.inputData[maxInput]:
+            raise ValueError(f'Minimum {optionName} level should be lower than or equal to maximum {optionName} level.')
