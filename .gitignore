@@ -10,3 +10,5 @@ keys.py
 !/mocks/yahoo/.gitkeep
 /mocks/bing/*
 !/mocks/bing/.gitkeep
+
+app/error.log

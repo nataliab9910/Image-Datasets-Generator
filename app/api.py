@@ -40,7 +40,6 @@ class ScraperApi(BasicApi, ABC):
 
     def getImages(self, entry):
         if os.path.exists(consts.DEFAULT_MOCK_PATH.format(self._FOLDER_NAME, entry)):
-            print('mock')
             with open(consts.DEFAULT_MOCK_PATH.format(self._FOLDER_NAME, entry), encoding='utf-8') as file:
                 results = json.load(file)
         else:
@@ -74,11 +73,9 @@ class GoogleApi(BasicApi):
 
     def getImages(self, entry):
         if os.path.exists(consts.DEFAULT_MOCK_PATH.format(self._FOLDER_NAME, entry)):
-            print('mock')
             with open(consts.DEFAULT_MOCK_PATH.format(self._FOLDER_NAME, entry), encoding='utf-8') as file:
                 results = json.load(file)
         else:
-            print('not mock')
             results = self._search(entry)
             with open(consts.DEFAULT_MOCK_PATH.format(self._FOLDER_NAME, entry), 'w') as file:
                 json.dump(results, file)

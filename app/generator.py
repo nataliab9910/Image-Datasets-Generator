@@ -6,6 +6,7 @@ from PIL import Image, ImageEnhance
 
 import app.consts as consts
 from app.api import ApiProvider
+from app.exceptionLog import exceptionLogSave
 
 
 class Validator:
@@ -44,8 +45,6 @@ class Generator:
         self.validator = Validator(self.inputData)
 
     def validateInputs(self):
-        # self.inputData[consts.Inputs.SEARCH_ENGINE] = 'ojoj'
-
         # validate search engine
         self.validator.keyExists(consts.Inputs.SEARCH_ENGINE)
         self.validator.isValueInEnum(consts.Inputs.SEARCH_ENGINE, consts.SearchEngines)
@@ -88,7 +87,7 @@ class Generator:
             self.inputData[consts.Inputs.IMAGE_HEIGHT] = int(self.inputData[consts.Inputs.IMAGE_HEIGHT])
             self.inputData[consts.Inputs.IMAGE_WIDTH] = int(self.inputData[consts.Inputs.IMAGE_WIDTH])
         except ValueError:
-            raise KeyError('Provided image height or width is not a valid number.')
+            raise ValueError('Provided image height or width is not a valid number.')
 
         if not 0 < self.inputData[consts.Inputs.IMAGE_HEIGHT] <= consts.MAX_IMAGE_SIZE \
                 or not 0 < self.inputData[consts.Inputs.IMAGE_WIDTH] <= consts.MAX_IMAGE_SIZE:
@@ -118,14 +117,12 @@ class Generator:
             if self.inputData[consts.Inputs.IS_SINGLE_SEARCH]:
                 entry = self.inputData[consts.Inputs.SINGLE_SEARCH_ENTRY]
                 imageUrls = api.getImages(entry)
-                print(imageUrls)
                 images = self._processImages(imageUrls)
                 savedImagesNum += self._saveImages(images, entry)
             elif self.inputData[consts.Inputs.IS_GROUP_SEARCH]:
                 for entry in self.inputData[consts.Inputs.GROUP_SEARCH_ENTRIES]:
                     imageUrls = api.getImages(entry)
                     images = self._processImages(imageUrls)
-                    print('before save')
                     savedImagesNum += self._saveImages(images, entry, True)
         except Exception:
             raise
@@ -150,17 +147,15 @@ class Generator:
 
                         images.append(image)
             except Exception as e:
-                print(e)  # save to logs exception with link to image
+                exceptionLogSave(e, imageUrl)
                 continue
 
-        print(images)
         return self._augmentImages(images)
 
     def _augmentImages(self, images):
         if not self.inputData[consts.Inputs.IS_AUGMENTATION]:
             return images
 
-        print('augmentation')
         multiplicationLevel = self.inputData[consts.Inputs.AUGMENTATION_LEVEL]
         rotationLevel = self.inputData[consts.Inputs.ROTATION_LEVEL]
         sharpnessRange = self.inputData[consts.Inputs.SHARPNESS_MIN], self.inputData[consts.Inputs.SHARPNESS_MAX]
@@ -170,32 +165,21 @@ class Generator:
         augmentedImages = []
         for idx, image in enumerate(images):
             image = image.convert('RGB')
-            print(image)
-            print(idx)
+
             augmentedImages.append(image)
             for i in range(1, multiplicationLevel):
-                print(i)
                 augmentedImage = image.rotate(random.uniform(-rotationLevel, rotationLevel) * 180)
-                print('rotation')
                 if self.inputData[consts.Inputs.IS_VERTICAL_FLIP] and bool(random.getrandbits(1)):
-                    print('a')
                     augmentedImage = augmentedImage.transpose(Image.FLIP_TOP_BOTTOM)
-                print('topbottom')
                 if self.inputData[consts.Inputs.IS_HORIZONTAL_FLIP] and bool(random.getrandbits(1)):
                     augmentedImage = augmentedImage.transpose(Image.FLIP_LEFT_RIGHT)
-                print('leftright')
                 augmentedImage = ImageEnhance.Sharpness(augmentedImage).enhance(random.uniform(*sharpnessRange))
-                print('sharpness')
                 augmentedImage = ImageEnhance.Contrast(augmentedImage).enhance(random.uniform(*contrastRange))
-                print('contrast')
                 augmentedImage = ImageEnhance.Brightness(augmentedImage).enhance(random.uniform(*brightnessRange))
-                print('bright')
                 augmentedImages.append(augmentedImage)
-                print('append')
 
         if self.inputData[consts.Inputs.SHUFFLE_IMAGES]:
             random.shuffle(augmentedImages)
-        print('exit augm')
         return augmentedImages
 
     def _saveImages(self, images, entry, isGroupSearch=False):
@@ -207,15 +191,17 @@ class Generator:
                 os.mkdir(destinationDir)
 
         destinationDir = destinationDir + entry + '/'
-        print(destinationDir)
         os.mkdir(destinationDir)
-        print('dircreated')
 
         savedImagesCount = 0
         for img in images:
-            img.save(f'{destinationDir}{entry}{savedImagesCount + 1:03}.'
-                     f'{self.inputData[consts.Inputs.IMAGE_FORMAT]}')
-            savedImagesCount += 1
+            try:
+                img.save(f'{destinationDir}{entry}{savedImagesCount + 1:03}.'
+                         f'{self.inputData[consts.Inputs.IMAGE_FORMAT]}')
+                savedImagesCount += 1
+            except Exception as e:
+                exceptionLogSave(e)
+                continue
 
         return savedImagesCount
 

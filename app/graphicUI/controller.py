@@ -1,6 +1,7 @@
-from app.view import GeneratorUi
+from app.graphicUI.view import GeneratorUi
 import app.consts as consts
 from app.generator import Generator
+from app.exceptionLog import exceptionLogSave
 
 
 class GeneratorController:
@@ -42,7 +43,7 @@ class GeneratorController:
             self.processInputData(inputData)
             self._view.enableGenerateButton()
         except Exception as e:
-            print(e)
+            exceptionLogSave(e)
             self._view.changeStatus('Sorry, something unexpected happened :(')
             self._view.enableGenerateButton()
 
@@ -55,11 +56,13 @@ class GeneratorController:
             self._view.changeStatus('Generating dataset...')
             savedImagesCount = generator.generateDataset()
             self._view.changeStatus(f'Collected {savedImagesCount} images!')
-        except (KeyError, NotADirectoryError, ValueError) as err:
-            self._view.changeStatus(str(err))
+        except (KeyError, NotADirectoryError, ValueError) as e:
+            exceptionLogSave(e)
+            self._view.changeStatus(str(e))
             self._view.enableGenerateButton()
             return
-        except Exception:
+        except Exception as e:
+            exceptionLogSave(e)
             self._view.changeStatus('Unexpected error happened.')
             raise
 

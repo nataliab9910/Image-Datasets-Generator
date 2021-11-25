@@ -2,8 +2,8 @@ import sys
 
 from PyQt5.QtWidgets import QApplication
 
-from app.view import GeneratorUi
-from app.controller import GeneratorController
+from app.graphicUI.view import GeneratorUi
+from app.graphicUI.controller import GeneratorController
 
 
 def main():
