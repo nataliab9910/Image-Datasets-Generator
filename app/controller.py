@@ -40,6 +40,7 @@ class GeneratorController:
         }
         try:
             self.processInputData(inputData)
+            self._view.enableGenerateButton()
         except Exception as e:
             print(e)
             self._view.changeStatus('Sorry, something unexpected happened :(')

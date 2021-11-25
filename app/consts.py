@@ -14,6 +14,8 @@ SHARPNESS_MIN, SHARPNESS_MAX = 0., 2.
 BRIGHTNESS_MIN, BRIGHTNESS_MAX = 0., 2.
 CONTRAST_MIN, CONTRAST_MAX = 0., 2.
 
+DEFAULT_MOCK_PATH = '../mocks/{}/{}.json'
+
 
 class Inputs(Enum):
     SEARCH_ENGINE = auto()

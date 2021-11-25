@@ -4,4 +4,6 @@ __pycache__
 /venv
 
 keys.py
-/mocks
+/mocks/google/*
+/mocks/yahoo/*
+/mocks/bing/*
