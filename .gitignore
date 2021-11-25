@@ -5,5 +5,8 @@ __pycache__
 
 keys.py
 /mocks/google/*
+!/mocks/google/.gitkeep
 /mocks/yahoo/*
+!/mocks/yahoo/.gitkeep
 /mocks/bing/*
+!/mocks/bing/.gitkeep
