@@ -38,10 +38,9 @@ class ScraperApi(BasicApi, ABC):
     @abstractmethod
     def _IMAGE_KEY(self): ...
 
-    def getImages(self, entry, isCli=False):
-        mockPath = consts.DEFAULT_MOCK_PATH.format(self._FOLDER_NAME, entry)
-        if isCli:
-            mockPath = '../' + mockPath
+    def getImages(self, entry, isCli=False):  # pass folder to mock
+        mockPath = consts.DEFAULT_CLI_MOCK_PATH if isCli else consts.DEFAULT_GUI_MOCK_PATH
+        mockPath = mockPath.format(self._FOLDER_NAME, entry)
 
         if os.path.exists(mockPath):
             with open(mockPath, encoding='utf-8') as file:
@@ -76,9 +75,8 @@ class GoogleApi(BasicApi):
         self.params = self._BASIC_GOOGLE_API_PARAMS
 
     def getImages(self, entry, isCli=False):
-        mockPath = consts.DEFAULT_MOCK_PATH.format(self._FOLDER_NAME, entry)
-        if isCli:
-            mockPath = '../' + mockPath
+        mockPath = consts.DEFAULT_CLI_MOCK_PATH if isCli else consts.DEFAULT_GUI_MOCK_PATH
+        mockPath = mockPath.format(self._FOLDER_NAME, entry)
 
         if os.path.exists(mockPath):
             with open(mockPath, encoding='utf-8') as file:

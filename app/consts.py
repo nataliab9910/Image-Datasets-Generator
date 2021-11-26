@@ -14,7 +14,8 @@ SHARPNESS_MIN, SHARPNESS_MAX = 0., 2.
 BRIGHTNESS_MIN, BRIGHTNESS_MAX = 0., 2.
 CONTRAST_MIN, CONTRAST_MAX = 0., 2.
 
-DEFAULT_MOCK_PATH = '../mocks/{}/{}.json'
+DEFAULT_GUI_MOCK_PATH = '../mocks/{}/{}.json'
+DEFAULT_CLI_MOCK_PATH = '../../mocks/{}/{}.json'
 DEFAULT_ERROR_LOG_FILE = 'error.log'
 
 

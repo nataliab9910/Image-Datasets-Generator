@@ -95,9 +95,9 @@ class Generator:
                              f'{consts.MAX_IMAGE_SIZE}.')
 
         # validate keep ratio
-        try:
-            self.validator.keyExists(consts.Inputs.KEEP_RATIO)
-        except KeyError:
+        if self.validator.conditionKeyExistsAndIsTrue(consts.Inputs.KEEP_RATIO):
+            self.inputData[consts.Inputs.IMAGE_HEIGHT] = consts.DEFAULT_IMAGE_HEIGHT
+        else:
             self.inputData[consts.Inputs.KEEP_RATIO] = False
 
         # validate augmentation
@@ -130,7 +130,7 @@ class Generator:
         return savedImagesNum
 
     def _processImages(self, imageUrls):
-        desiredImageSize = (self.inputData[consts.Inputs.IMAGE_WIDTH], self.inputData[consts.Inputs.IMAGE_HEIGHT])
+        desiredImageSize = self.inputData[consts.Inputs.IMAGE_WIDTH], self.inputData[consts.Inputs.IMAGE_HEIGHT]
 
         images = []
         for index, imageUrl in enumerate(imageUrls):
