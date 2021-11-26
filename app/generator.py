@@ -110,18 +110,18 @@ class Generator:
         if not self.validator.conditionKeyExistsAndIsTrue(consts.Inputs.SHUFFLE_IMAGES):
             self.inputData[consts.Inputs.SHUFFLE_IMAGES] = False
 
-    def generateDataset(self):
+    def generateDataset(self, isCli=False):
         savedImagesNum = 0
         try:
             api = ApiProvider.getApi(self.inputData[consts.Inputs.SEARCH_ENGINE])
             if self.inputData[consts.Inputs.IS_SINGLE_SEARCH]:
                 entry = self.inputData[consts.Inputs.SINGLE_SEARCH_ENTRY]
-                imageUrls = api.getImages(entry)
+                imageUrls = api.getImages(entry, isCli)
                 images = self._processImages(imageUrls)
                 savedImagesNum += self._saveImages(images, entry)
             elif self.inputData[consts.Inputs.IS_GROUP_SEARCH]:
                 for entry in self.inputData[consts.Inputs.GROUP_SEARCH_ENTRIES]:
-                    imageUrls = api.getImages(entry)
+                    imageUrls = api.getImages(entry, isCli)
                     images = self._processImages(imageUrls)
                     savedImagesNum += self._saveImages(images, entry, True)
         except Exception:

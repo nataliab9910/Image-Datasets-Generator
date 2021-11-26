@@ -12,3 +12,5 @@ keys.py
 !/mocks/bing/.gitkeep
 
 app/error.log
+app/commandLineUI/error.log
+app/graphicUI/error.log

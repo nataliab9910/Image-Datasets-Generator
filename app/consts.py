@@ -19,29 +19,29 @@ DEFAULT_ERROR_LOG_FILE = 'error.log'
 
 
 class Inputs(Enum):
-    SEARCH_ENGINE = auto()
-    LOCAL_PATH = auto()
-    IS_SINGLE_SEARCH = auto()
-    SINGLE_SEARCH_ENTRY = auto()
-    IS_GROUP_SEARCH = auto()
-    GROUP_NAME = auto()
-    GROUP_SEARCH_ENTRIES = auto()
-    IMAGE_FORMAT = auto()
-    IMAGE_WIDTH = auto()
-    IMAGE_HEIGHT = auto()
-    KEEP_RATIO = auto()
-    IS_AUGMENTATION = auto()
-    AUGMENTATION_LEVEL = auto()
-    IS_HORIZONTAL_FLIP = auto()
-    IS_VERTICAL_FLIP = auto()
-    ROTATION_LEVEL = auto()
-    SHARPNESS_MIN = auto()
-    SHARPNESS_MAX = auto()
-    CONTRAST_MIN = auto()
-    CONTRAST_MAX = auto()
-    BRIGHTNESS_MIN = auto()
-    BRIGHTNESS_MAX = auto()
-    SHUFFLE_IMAGES = auto()
+    SEARCH_ENGINE = 'engine'
+    LOCAL_PATH = 'path'
+    IS_SINGLE_SEARCH = 'isSingle'
+    SINGLE_SEARCH_ENTRY = 'singleEntry'
+    IS_GROUP_SEARCH = 'isGroup'
+    GROUP_NAME = 'groupName'
+    GROUP_SEARCH_ENTRIES = 'groupEntries'
+    IMAGE_FORMAT = 'imgFormat'
+    IMAGE_WIDTH = 'imgWidth'
+    IMAGE_HEIGHT = 'imgHeight'
+    KEEP_RATIO = 'keepRatio'
+    IS_AUGMENTATION = 'augment'
+    AUGMENTATION_LEVEL = 'augLevel'
+    IS_HORIZONTAL_FLIP = 'horizontalFlip'
+    IS_VERTICAL_FLIP = 'verticalFlip'
+    ROTATION_LEVEL = 'rotation'
+    SHARPNESS_MIN = 'sharpnessMin'
+    SHARPNESS_MAX = 'sharpnessMax'
+    CONTRAST_MIN = 'contrastMin'
+    CONTRAST_MAX = 'contrastMax'
+    BRIGHTNESS_MIN = 'brightnessMin'
+    BRIGHTNESS_MAX = 'brightnessMax'
+    SHUFFLE_IMAGES = 'shuffle'
 
 
 class AppStatuses(Enum):

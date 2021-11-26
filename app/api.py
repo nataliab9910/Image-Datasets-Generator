@@ -17,7 +17,7 @@ class BasicApi(ABC):
     def _FOLDER_NAME(self): ...
 
     @abstractmethod
-    def getImages(self, entry): ...
+    def getImages(self, entry, isCli=False): ...
 
 
 class ScraperApi(BasicApi, ABC):
@@ -38,9 +38,13 @@ class ScraperApi(BasicApi, ABC):
     @abstractmethod
     def _IMAGE_KEY(self): ...
 
-    def getImages(self, entry):
-        if os.path.exists(consts.DEFAULT_MOCK_PATH.format(self._FOLDER_NAME, entry)):
-            with open(consts.DEFAULT_MOCK_PATH.format(self._FOLDER_NAME, entry), encoding='utf-8') as file:
+    def getImages(self, entry, isCli=False):
+        mockPath = consts.DEFAULT_MOCK_PATH.format(self._FOLDER_NAME, entry)
+        if isCli:
+            mockPath = '../' + mockPath
+
+        if os.path.exists(mockPath):
+            with open(mockPath, encoding='utf-8') as file:
                 results = json.load(file)
         else:
             req = requests.get(self._WEBSITE_URL % entry)
@@ -50,7 +54,7 @@ class ScraperApi(BasicApi, ABC):
             for link in soup.find_all(attrs=self._SEARCH_ATTRIBUTES):
                 results.append(link.get(self._IMAGE_KEY))
 
-            with open(consts.DEFAULT_MOCK_PATH.format(self._FOLDER_NAME, entry), 'w') as file:
+            with open(mockPath, 'w') as file:
                 json.dump(results, file)
 
         return results
@@ -71,13 +75,17 @@ class GoogleApi(BasicApi):
     def __init__(self):
         self.params = self._BASIC_GOOGLE_API_PARAMS
 
-    def getImages(self, entry):
-        if os.path.exists(consts.DEFAULT_MOCK_PATH.format(self._FOLDER_NAME, entry)):
-            with open(consts.DEFAULT_MOCK_PATH.format(self._FOLDER_NAME, entry), encoding='utf-8') as file:
+    def getImages(self, entry, isCli=False):
+        mockPath = consts.DEFAULT_MOCK_PATH.format(self._FOLDER_NAME, entry)
+        if isCli:
+            mockPath = '../' + mockPath
+
+        if os.path.exists(mockPath):
+            with open(mockPath, encoding='utf-8') as file:
                 results = json.load(file)
         else:
             results = self._search(entry)
-            with open(consts.DEFAULT_MOCK_PATH.format(self._FOLDER_NAME, entry), 'w') as file:
+            with open(mockPath, 'w') as file:
                 json.dump(results, file)
 
         if self._IMAGES_RESULTS_KEY not in results:
