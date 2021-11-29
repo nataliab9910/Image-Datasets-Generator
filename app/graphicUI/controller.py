@@ -1,7 +1,8 @@
-from app.graphicUI.view import GeneratorUi
 import app.consts as consts
+
+from app.exceptionLogger import exceptionLogSave
 from app.generator import Generator
-from app.exceptionLog import exceptionLogSave
+from app.graphicUI.view import GeneratorUi
 
 
 class GeneratorController:
@@ -10,10 +11,9 @@ class GeneratorController:
         self._connectSignals()
 
     def _connectSignals(self):
-        self._view.generateButton.clicked.connect(lambda: self.generate())
+        self._view.generateButton.clicked.connect(lambda: self.processInputData())
 
-    def generate(self):
-        self._view.changeStatus('Collecting inputs...')
+    def processInputData(self):
         inputData = {
             consts.Inputs.SEARCH_ENGINE: self._view.searchEngineBox.currentText(),
             consts.Inputs.LOCAL_PATH: self._view.pathLine.text(),
@@ -25,7 +25,6 @@ class GeneratorController:
             consts.Inputs.IMAGE_FORMAT: self._view.imageFormatBox.currentText(),
             consts.Inputs.IMAGE_WIDTH: self._view.imageWidthInput.text(),
             consts.Inputs.IMAGE_HEIGHT: self._view.imageHeightInput.text(),
-            consts.Inputs.KEEP_RATIO: self._view.keepRatioCheckbox.isChecked(),
             consts.Inputs.IS_AUGMENTATION: self._view.augmentationCheckbox.isChecked(),
             consts.Inputs.AUGMENTATION_LEVEL: self._view.augmentationLevelInput.text(),
             consts.Inputs.IS_HORIZONTAL_FLIP: self._view.horizontalFlipCheckbox.isChecked(),
@@ -40,20 +39,18 @@ class GeneratorController:
             consts.Inputs.SHUFFLE_IMAGES: self._view.shuffleImagesCheckbox.isChecked()
         }
         try:
-            self.processInputData(inputData)
+            self.generateAction(inputData)
             self._view.enableGenerateButton()
         except Exception as e:
             exceptionLogSave(e)
             self._view.changeStatus('Sorry, something unexpected happened :(')
             self._view.enableGenerateButton()
 
-    def processInputData(self, inputData):
+    def generateAction(self, inputData):
         generator = Generator(inputData)
-        self._view.changeStatus('Processing inputs...')
 
         try:
             generator.validateInputs()
-            self._view.changeStatus('Generating dataset...')
             savedImagesCount = generator.generateDataset()
             self._view.changeStatus(f'Collected {savedImagesCount} images!')
         except (KeyError, NotADirectoryError, ValueError) as e:

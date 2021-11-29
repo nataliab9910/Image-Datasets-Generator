@@ -7,7 +7,7 @@ DATE_FORMAT = "%Y/%m/%d %H:%M:%S"
 
 def exceptionLogSave(exception, additionalInfo = None):
     with open(consts.DEFAULT_ERROR_LOG_FILE, 'a') as file:
-        file.write(f'[{datetime.now().strftime(DATE_FORMAT)}] An exception occured :(\n'
+        file.write(f'[{datetime.now().strftime(DATE_FORMAT)}] An exception occurred :(\n'
                    f'Type: {type(exception).__name__}\n'
                    f'Message: {str(exception)}\n')
         if additionalInfo is not None:

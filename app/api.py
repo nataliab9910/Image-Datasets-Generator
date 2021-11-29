@@ -1,12 +1,13 @@
-from abc import ABC, abstractmethod
-from serpapi import GoogleSearch
-
+import json
+import os
 import requests
+import serpapi
+
+from abc import ABC, abstractmethod
 from bs4 import BeautifulSoup
 
-import json
 import keys
-import os
+
 from app import consts
 
 
@@ -38,7 +39,7 @@ class ScraperApi(BasicApi, ABC):
     @abstractmethod
     def _IMAGE_KEY(self): ...
 
-    def getImages(self, entry, isCli=False):  # pass folder to mock
+    def getImages(self, entry, isCli=False):
         mockPath = consts.DEFAULT_CLI_MOCK_PATH if isCli else consts.DEFAULT_GUI_MOCK_PATH
         mockPath = mockPath.format(self._FOLDER_NAME, entry)
 
@@ -62,8 +63,6 @@ class ScraperApi(BasicApi, ABC):
 class GoogleApi(BasicApi):
     _FOLDER_NAME = 'google'
     _BASIC_GOOGLE_API_PARAMS = {
-        "hl": "pl",
-        "gl": "pl",
         "tbm": "isch",
         "api_key": keys.API_KEY
     }
@@ -98,9 +97,8 @@ class GoogleApi(BasicApi):
 
     def _search(self, entry):
         self.params[self._ENTRY_KEY] = entry
-        search = GoogleSearch(self.params)
+        search = serpapi.GoogleSearch(self.params)
         results = search.get_dict()
-        print(results)
 
         return results
 

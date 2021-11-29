@@ -1,36 +1,43 @@
 from app import consts
-from app.exceptionLog import exceptionLogSave
+from app.exceptionLogger import exceptionLogSave
 from app.generator import Generator
 
 
-def processInput(inputText):
-    print('Processing your inputs...')
-    inputData = _getInputArray(inputText)
-    generator = Generator(inputData)
+class CliGeneratorController:
+    def processInput(self, inputText):
+        print('Processing your inputs...')
 
-    try:
-        generator.validateInputs()
-        print('Generating dataset...')
-        savedImagesCount = generator.generateDataset(isCli=True)
-        print(f'Collected {savedImagesCount} images!')
-    except (KeyError, NotADirectoryError, ValueError) as e:
-        exceptionLogSave(e)
-        print(str(e))
-        return
-    except Exception as e:
-        exceptionLogSave(e)
-        print('Unexpected error happened.')
-        raise
+        try:
+            inputData = self._getInputDict(inputText)
+        except KeyError as e:
+            exceptionLogSave(e)
+            print(str(e))
+            return
 
+        generator = Generator(inputData)
 
-def _getInputArray(inputText):
-    validKeys = [item.value for item in consts.Inputs]
+        try:
+            generator.validateInputs()
+            print('Generating dataset...')
+            savedImagesCount = generator.generateDataset(isCli=True)
+            print(f'Collected {savedImagesCount} images!')
+        except (KeyError, NotADirectoryError, ValueError) as e:
+            exceptionLogSave(e)
+            print(str(e))
+            return
+        except Exception as e:
+            exceptionLogSave(e)
+            print('Unexpected error happened.')
+            raise
 
-    result = {}
-    for option in inputText.split(';'):
-        key, value = option.split(':', 1)
-        if key not in validKeys:
-            raise KeyError(f'Provided key is not valid: {key}')
-        result[consts.Inputs(key)] = value
+    def _getInputDict(self, inputText):
+        validKeys = [item.value for item in consts.Inputs]
 
-    return result
+        result = {}
+        for option in inputText.split(';'):
+            key, value = option.split(':', 1)
+            if key not in validKeys:
+                raise KeyError(f'Provided key is not valid: {key}')
+            result[consts.Inputs(key)] = value
+
+        return result

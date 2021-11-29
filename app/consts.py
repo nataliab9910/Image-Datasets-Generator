@@ -1,4 +1,4 @@
-from enum import Enum, auto
+from enum import Enum
 
 DEFAULT_IMAGE_WIDTH = 100
 DEFAULT_IMAGE_HEIGHT = 100
@@ -30,7 +30,6 @@ class Inputs(Enum):
     IMAGE_FORMAT = 'imgFormat'
     IMAGE_WIDTH = 'imgWidth'
     IMAGE_HEIGHT = 'imgHeight'
-    KEEP_RATIO = 'keepRatio'
     IS_AUGMENTATION = 'augment'
     AUGMENTATION_LEVEL = 'augLevel'
     IS_HORIZONTAL_FLIP = 'horizontalFlip'

@@ -15,7 +15,7 @@ class GeneratorUi(QtWidgets.QMainWindow):
         self.setCentralWidget(self._centralWidget)
         self._centralWidget.setLayout(self.layout)
         self._createInterface()
-        self.centerWindow()
+        self._centerWindow()
 
     def _createInterface(self):
         self.layout.addWidget(self._prepareSearchEngineGroup())
@@ -105,7 +105,7 @@ class GeneratorUi(QtWidgets.QMainWindow):
         self.imageFormatBox.addItems([imageFormat.value for imageFormat in consts.ImageFormats])
         additionalOptionsLayout.addWidget(self.imageFormatBox, 0, 1, 1, 3)
 
-        additionalOptionsLayout.addWidget(QtWidgets.QLabel('Desired image resolution:'), 1, 0)
+        additionalOptionsLayout.addWidget(QtWidgets.QLabel('Desired image resolution (max 500x500):'), 1, 0)
         self.imageWidthInput = QtWidgets.QLineEdit()
         self.imageWidthInput.setText(str(consts.DEFAULT_IMAGE_WIDTH))
         additionalOptionsLayout.addWidget(self.imageWidthInput, 1, 1)
@@ -113,10 +113,6 @@ class GeneratorUi(QtWidgets.QMainWindow):
         self.imageHeightInput = QtWidgets.QLineEdit()
         self.imageHeightInput.setText(str(consts.DEFAULT_IMAGE_HEIGHT))
         additionalOptionsLayout.addWidget(self.imageHeightInput, 1, 3)
-
-        self.keepRatioCheckbox = QtWidgets.QCheckBox()
-        self.keepRatioCheckbox.setText('Keep original image ratio')
-        additionalOptionsLayout.addWidget(self.keepRatioCheckbox, 2, 0, 1, 2)
 
         additionalOptionsGroup.setLayout(additionalOptionsLayout)
 
@@ -264,7 +260,7 @@ class GeneratorUi(QtWidgets.QMainWindow):
     def enableGenerateButton(self):
         self.generateButton.setEnabled(True)
 
-    def centerWindow(self):
+    def _centerWindow(self):
         qtRectangle = self.frameGeometry()
         centerPoint = QtWidgets.QDesktopWidget().availableGeometry().center()
         qtRectangle.moveCenter(centerPoint)
