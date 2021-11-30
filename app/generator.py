@@ -29,7 +29,7 @@ class Validator:
         except KeyError:
             return False
 
-        return self._data[key]
+        return str(self._data[key]).lower() == 'true'
 
     def isDirectory(self, path):
         if not os.path.isdir(path):
@@ -59,6 +59,8 @@ class Generator:
         # validate single search option
         if self._validator.conditionKeyExistsAndIsTrue(consts.Inputs.IS_SINGLE_SEARCH):
             self._validator.keyExists(consts.Inputs.SINGLE_SEARCH_ENTRY)
+            self._inputData[consts.Inputs.IS_SINGLE_SEARCH] = True
+            self._inputData[consts.Inputs.IS_GROUP_SEARCH] = False
 
             destinationDirectory = self._inputData[consts.Inputs.LOCAL_PATH] \
                                    + '/' \
@@ -71,6 +73,9 @@ class Generator:
         elif self._validator.conditionKeyExistsAndIsTrue(consts.Inputs.IS_GROUP_SEARCH):
             self._validator.keyExists(consts.Inputs.GROUP_NAME)
             self._validator.keyExists(consts.Inputs.GROUP_SEARCH_ENTRIES)
+            self._inputData[consts.Inputs.IS_SINGLE_SEARCH] = False
+            self._inputData[consts.Inputs.IS_GROUP_SEARCH] = True
+
             self._inputData[consts.Inputs.GROUP_SEARCH_ENTRIES] = \
                 [entry for entry in self._inputData[consts.Inputs.GROUP_SEARCH_ENTRIES].split(',') if entry]
         # no option defined
