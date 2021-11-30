@@ -7,6 +7,7 @@ If you want to run this project, follow the instruction below.
     pip install Pillow
     pip install beautifulsoup4
     pip install PyQt5
+    pip install google-search-results
     ```
 2. Register in https://serpapi.com/ to get a key to the API
 3. Create file *keys.py* in your project's folder and fill it with this code:
