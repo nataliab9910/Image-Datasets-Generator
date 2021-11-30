@@ -135,7 +135,7 @@ class Generator:
                 if response.status_code == 200 and response.headers['content-type'].startswith('image/'):
                     image_bytes = io.BytesIO(response.content)
                     with Image.open(image_bytes) as image:
-                        print(index)
+                        # print(index)
                         image = image.resize(desiredImageSize, Image.ANTIALIAS)
                         images.append(image)
             except Exception as e:

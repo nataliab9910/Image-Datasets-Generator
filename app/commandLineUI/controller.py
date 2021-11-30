@@ -35,6 +35,8 @@ class CliGeneratorController:
 
         result = {}
         for option in inputText.split(';'):
+            if not option or ':' not in option:
+                continue
             key, value = option.split(':', 1)
             if key not in validKeys:
                 raise KeyError(f'Provided key is not valid: {key}')
