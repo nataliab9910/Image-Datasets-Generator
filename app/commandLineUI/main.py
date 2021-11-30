@@ -3,7 +3,7 @@ from app.commandLineUI.controller import CliGeneratorController
 
 def main():
     generatorController = CliGeneratorController()
-    print('Hello! Please, provide options of enter END to finish.')
+    print('Hello! Please, provide options or enter END to finish.')
     inputText = str(input())
     while inputText.upper() != 'END':
         generatorController.processInput(inputText)
